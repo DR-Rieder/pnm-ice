@@ -198,6 +198,12 @@ Especially for large systems (>5000 rows as a rough indicator), memory limitatio
 ```python
 J, G = numdiff.conduct_numerical_differentiation(c, defect_func=Defect, type='low_mem')
 ```
+Note here, that you can provide the network as input variable, which will trigger a graph analysis that will optimize the number of required differentiation steps. This step mainly makes sense, if the graph of the network stays constant and differentiation is needed repeatedly. The first time differentiating will require more time, however a set of optimization parameters will be provided to the `opt`-dict argument, which can be supplied additionally. If this argument is then provided afterwards, significant speedups can be achieved.
+```python
+opt = dict()
+J, G = numdiff.conduct_numerical_differentiation(c, defect_func=Defect, type='full', network=network, opt=opt)
+```
+
 A special case of optimization you can achieve, if you know that the Jacobian is only dependent on the components and not on the connected pores, e.g. in the case of reaction in the pore:
 ```python
 J, G = numdiff.conduct_numerical_differentiation(c, defect_func=Defect, type='constrained')
@@ -205,6 +211,7 @@ J, G = numdiff.conduct_numerical_differentiation(c, defect_func=Defect, type='co
 J, G = numdiff.conduct_numerical_differentiation(c, defect_func=Defect, axis=1)
 ```
 The option `axis=1` exist for compatibility reason with the [pymrm](https://pypi.org/project/pymrm/) package.
+
 ## Reactions
 Typically, we introduce a non-linearity to our model when introducing reactions. So most of the times, exploiting numerical differentiation is the easiest way for determining the Jacobians. When defining your defect, take care that you also handle the equations in accordance with the above described discretization. Usually that means that your values need to be multiplied with the pore volume. Let's consider the following reaction:
 ```math
